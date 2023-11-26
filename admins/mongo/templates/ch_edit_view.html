@@ -1,0 +1,37 @@
+{% extends 'admin/model/edit.html' %}
+
+{% block tail %}
+    {{ super() }}
+    
+    <div class="form-group">
+        {{ form.user_id.label(class="form-control-label") }}
+        {{ form.user_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.messages.label(class="form-control-label") }}
+        <textarea id="messages" name="messages" class="form-control" style="height: 100vh">{{ form.messages.data }}</textarea>
+        <script>
+            // Функция для форматирования и отображения JSON
+            function displayFormattedJson() {
+                const messagesField = document.getElementById("messages");
+                try {
+                    const jsonValue = JSON.parse(messagesField.value);
+                    messagesField.value = JSON.stringify(jsonValue, null, 4);
+                } catch (e) {
+                    // Обработка ошибок при парсинге JSON
+                }
+            }
+
+            // Вызываем функцию при загрузке страницы
+            window.onload = function() {
+                displayFormattedJson();
+            };
+
+            // Вызываем функцию при изменении значения в поле messages
+            document.getElementById("messages").addEventListener("input", function() {
+                displayFormattedJson();
+            });
+        </script>
+    </div>
+{% endblock %}
