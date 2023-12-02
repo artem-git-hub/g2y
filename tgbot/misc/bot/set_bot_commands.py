@@ -14,5 +14,6 @@ async def set_default_commands(dp: Dispatcher):
             types.BotCommand("set_question", "GPT помощник"),
             types.BotCommand("set_testing", "Режим тестирования"),
             types.BotCommand("set_recognition", "Режим распознования текста с картинки"),
+            types.BotCommand("subscription", "Узнать о подписке"),
         ]
     )

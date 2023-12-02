@@ -19,7 +19,7 @@ class Subscription(TimedBaseModel):
     __tablename__ = "subsriptions"
 
     id = Column(BigInteger, autoincrement=True, primary_key=True)
-    user_id = Column(BigInteger, ForeignKey('users.id'))
+    user_id = Column(BigInteger, ForeignKey('users.id'), unique=True)
     end_time = Column(DateTime(timezone=True))
 
     @declared_attr

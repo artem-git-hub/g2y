@@ -4,6 +4,7 @@
 from dataclasses import dataclass
 from typing import List
 
+from aiogram import Bot
 from environs import Env
 
 
@@ -24,6 +25,7 @@ class Docker:
     db_container_name: str
     bot_container_name: str
     mongo_container_name: str
+    redis_container_name: str
 
 
 @dataclass
@@ -47,6 +49,21 @@ class Admin:
     postgres_port: str
 
 @dataclass
+class Redis:
+    """Класс конфигурации бота"""
+
+    host: str
+    port: str
+
+
+@dataclass
+class ProjectLinks:
+    """Класс хранения ссылок для бота"""
+    main_article: str = ""
+    get_maximum: str = ""
+
+
+@dataclass
 class Miscellaneous:
     """Класс для других параметров (опционально), не заполняется"""
 
@@ -66,15 +83,20 @@ class DbConfig:
     debug: bool
     mongo: Mongo
 
+
 @dataclass
 class Config:
     """Общий класс конфигурации"""
 
+    project_name: str
     tg_bot: TgBot
     db: DbConfig
     misc: Miscellaneous
     docker: Docker
     admin: Admin
+    redis: Redis
+    links: ProjectLinks
+    bot: Bot
 
 
 
@@ -87,6 +109,8 @@ def load_config(path: str = ""):
     env.read_env(path)
 
     return Config(
+        project_name=env.str("PROJECT_NAME"),
+        bot=None,
         tg_bot=TgBot(
             token=env.str("BOT_TOKEN"),
             admin_ids=list(map(int, env.list("ADMINS"))),
@@ -111,7 +135,8 @@ def load_config(path: str = ""):
         docker=Docker(
             db_container_name=env.str('DB_CONTAINER_NAME'),
             bot_container_name=env.str('BOT_CONTAINER_NAME'),
-            mongo_container_name=env.str('MONGO_DB_CONTAINER_NAME')
+            mongo_container_name=env.str('MONGO_DB_CONTAINER_NAME'),
+            redis_container_name=env.str('REDIS_CONTAINER_NAME')
         ),
         admin=Admin(
             mongo_host=env.str('ADMIN_MONGO_HOST'),
@@ -119,5 +144,10 @@ def load_config(path: str = ""):
             postgres_host=env.str('ADMIN_POSTGRES_HOST'),
             postgres_port=env.str('ADMIN_POSTGRES_PORT')
         ),
+        redis=Redis(
+            host=env.str('REDIS_HOST'),
+            port=env.str('REDIS_PORT')
+        ),
+        links=ProjectLinks(),
         misc=Miscellaneous()
     )

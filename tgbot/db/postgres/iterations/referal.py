@@ -5,7 +5,7 @@ import logging
 from typing import List
 
 from asyncpg import UniqueViolationError
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tgbot.db.postgres.db import db_query
@@ -46,10 +46,36 @@ async def select_referals_by_referer_id(referer_id: int | str,
     referals = (await session.execute(select(Referal).where(Referal.referer_id == referer_id))).fetchall()
     return referals
 
+@db_query
+async def select_referals_by_referer_id_and_referal_id(referer_id: int | str,
+                                                       referal_id: int | str,
+                                                       session: AsyncSession = None
+                                                       ) -> Referal:
+    """Выборка всех рефералов реферера [referer_id: int | str] """
+
+    referer_id = get_int_id(referer_id)
+    referal = (await session.execute(select(Referal).where(Referal.referer_id == referer_id).where(Referal.referal_id == referal_id))).fetchone()
+    return referal if referal is None else referal[0]
+
 
 @db_query
 async def count_referals_by_referer_id(referer_id: int | str, session: AsyncSession = None) -> int:
-    """Получение количества рефералов определенного реферера"""
-
-    total = await session.scalar(select(Referal).filter(Referal.referer_id == referer_id).count())
+    """Получение количества рефералов для конкретного реферера."""
+    referer_id = get_int_id(referer_id)
+    total = await session.scalar(
+        select(func.count())
+        .where(Referal.referer_id == referer_id)
+    )
     return total
+
+
+@db_query
+async def count_referals_all_referers(session: AsyncSession = None) -> dict:
+    """Получение количества рефералов для каждого реферера."""
+    result = await session.execute(
+        select(Referal.referer_id, func.count())
+        .group_by(Referal.referer_id)
+    )
+
+    referal_counts = dict(result.fetchall())
+    return referal_counts

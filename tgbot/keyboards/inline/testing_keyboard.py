@@ -21,7 +21,7 @@ async def def_key_testing(
         Функция возвращающая клавиатуру
     """
 
-    key_back = InlineKeyboardMarkup(
+    key_testing = InlineKeyboardMarkup(
         inline_keyboard=[
             # [
             #     InlineKeyboardButton(
@@ -87,4 +87,4 @@ async def def_key_testing(
             ]
         ]
     )
-    return key_back
+    return key_testing

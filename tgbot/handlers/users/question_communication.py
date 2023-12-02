@@ -24,7 +24,7 @@ async def user_start_question_mode(message: Message, state: FSMContext):
 
     communication_history = await get_communication_history(user_id=user_id)
 
-    print(communication_history)
+    # print(communication_history)
 
     message = await message.answer("Ожидание ответа от GPT ...")
     response = await ai_response(
@@ -32,7 +32,7 @@ async def user_start_question_mode(message: Message, state: FSMContext):
         prompt=communication_history
     )
 
-    print(response.get("prompt"))
+    # print(response.get("prompt"))
     await upsert_communication_history(user_id=user_id,
                                        communication_history_data=response.get("prompt"))
 

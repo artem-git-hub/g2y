@@ -3,6 +3,7 @@
 """
 import asyncio
 import logging
+import traceback
 
 import tenacity
 from aiogram import Bot, Dispatcher
@@ -11,6 +12,7 @@ from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from tgbot.db.postgres.db import wait_postgres
 from tgbot.filters.admin import AdminFilter
+from tgbot.filters.subscription import SubscriptionFilter
 from tgbot.handlers.admin.command import register_admin
 from tgbot.handlers.users.echo import register_echo
 from tgbot.handlers.users.command import register_user
@@ -40,6 +42,7 @@ def register_all_filters(dp: Dispatcher):
         Регистрация всех фильтров по примеру
     """
     dp.filters_factory.bind(AdminFilter)
+    dp.filters_factory.bind(SubscriptionFilter)
 
 
 def register_all_handlers(dp):
@@ -88,15 +91,18 @@ async def main():
 
     #Используем Redis если это необходимо
     if config.tg_bot.use_redis:
-        storage = RedisStorage2()
+        storage = RedisStorage2(host=config.redis.host, port=config.redis.port)
     else:
         storage = MemoryStorage()
 
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+    bot = config.bot
     dp = Dispatcher(bot, storage=storage)
 
-    #Засовываем конфиг в переменную бота
-    bot['config'] = config
+    # Засовываем конфиг в переменную бота
+    # bot['config'] = config
+    # Поменял с недавнего времени
+    # config.bot = bot
+    # вообще нахуй изменил, так-то выше на строчках
 
     #Если используется БД то идет подключение к ней
     if config.tg_bot.use_db:
@@ -131,3 +137,11 @@ if __name__ == '__main__':
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit, RuntimeError):
         logger.error("Bot stopped!")
+    except Exception as e:
+        logger.error("Bot stopped with an exception: %s", e)
+
+        ERROR_TYPE = type(e).__name__
+        logger.error("Error Type: %s", ERROR_TYPE)
+
+        TRACEBACK_STR = traceback.format_exc()
+        logger.error("Error Traceback:\n%s", TRACEBACK_STR)

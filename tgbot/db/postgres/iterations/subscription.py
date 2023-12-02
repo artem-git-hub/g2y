@@ -3,7 +3,7 @@
 """
 from datetime import datetime
 import logging
-from typing import List
+from typing import List, Tuple
 
 from asyncpg import UniqueViolationError
 from sqlalchemy import select
@@ -69,9 +69,24 @@ async def update_subs_data(user_id: int | str,
     subscription = await session.execute(
                 select(Subscription).where(Subscription.user_id == user_id)
             )
-    subscription: Subscription = subscription.fetchone()
+    subscription: Subscription = subscription.fetchone()[0]
 
     if subscription:
         subscription.end_time = end_time
     else:
         return
+
+
+@db_query
+async def select_subs_between_time_time(first_time: datetime,
+                                        second_time: datetime,
+                                        session: AsyncSession = None) -> Tuple[Subscription]:
+    """Выборка подписок во временом промежутке между first_time и second_time"""
+
+    result = await session.execute(
+        select(Subscription).filter(
+            Subscription.end_time.between(first_time, second_time)
+        )
+    )
+    
+    return result.scalars().all()

@@ -1,10 +1,12 @@
 """
     Определение функции взаимодействия с AI
 """
+import logging
+from re import L
 from typing import Dict, Optional, Union
-from pprint import pprint
 import g4f
 
+logger = logging.getLogger(__name__)
 
 async def request_gpt(
         message: str = "",
@@ -30,14 +32,18 @@ async def request_gpt(
         #     model=g4f.models.gpt_35_turbo_16k,
         #     messages=messages,
         # )
-        response = await g4f.ChatCompletion.create_async(
-            model=g4f.models.gpt_35_turbo,
-            messages=messages,
-        )
+
+        logger.info("Starting AI response ...")
+        logger.info("Message: %s", message)
+
         # response = await g4f.ChatCompletion.create_async(
-        #     model=g4f.models.gpt_35_long,
+        #     model=g4f.models.gpt_35_turbo,
         #     messages=messages,
         # )
+        response = await g4f.ChatCompletion.create_async(
+            model=g4f.models.gpt_35_long,
+            messages=messages,
+        )
 
 
         # response = await g4f.ChatCompletion.create_async(
@@ -46,7 +52,8 @@ async def request_gpt(
         # )
         messages.append({"role": "assistant", "content": response})
 
-        # pprint(messages)
+        logger.info("Get AI response ...")
+        logger.info("Response: %s", response)
 
         return {"success": True, "message": str(response), "prompt": messages}
     except RuntimeError:

@@ -2,7 +2,6 @@
     Мидлвари для работы с пользовательскими данными
 """
 import logging
-from pprint import pprint
 from typing import Union
 
 from aiogram import types
@@ -10,6 +9,7 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 
 from tgbot.db.postgres.iterations.user import select_user, add_user, update_user_data
 from tgbot.db.postgres.models.user import User
+from tgbot.misc.other.add_if_not_subscription import add_if_not_subscription
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,8 @@ class UpdateUserData(BaseMiddleware):
             await add_user(id_=tg_user.id, username=tg_user.username, fullname=tg_user.full_name)
             data["first_start"] = True
 
+        await add_if_not_subscription(user_id=tg_user.id)
+
     async def on_pre_process_callback_query(self, obj: types.CallbackQuery, data: dict):
         """Добавляем пользователя в базу данных если не добавилось в предыдущий раз"""
 
@@ -41,6 +43,8 @@ class UpdateUserData(BaseMiddleware):
         user: User = await select_user(id_=tg_user.id)
         if user is None:
             await add_user(id_=tg_user.id, username=tg_user.username, fullname=tg_user.full_name)
+        
+        await add_if_not_subscription(user_id=tg_user.id)
 
     async def on_post_process_message(self, 
                                       obj: Union[types.Message, types.CallbackQuery],

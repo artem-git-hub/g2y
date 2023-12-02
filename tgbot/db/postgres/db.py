@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 from typing import List
 
@@ -29,27 +30,34 @@ class BaseModel(Base):
 
     def __str__(self):
         model = self.__class__.__name__
-        primary_key_columns: List[Column] = [column for column in self.__table__.columns if column.primary_key]
-        values = {column.name: getattr(self, column.name) for column in primary_key_columns}
+        primary_key_columns: List[Column] = [
+            column for column in self.__table__.columns if column.primary_key]
+        unique_columns: List[Column] = [
+            column for column in self.__table__.columns if column.unique]
+
+        values = {
+            column.name: getattr(self, column.name) \
+                for column in primary_key_columns + unique_columns}
         values_str = " ".join(f"{name}={value!r}" for name, value in values.items())
-        return f"<{model} {values_str}>"
+        return f"[{model} {values_str}]"
 
 
 class TimedBaseModel(BaseModel):
     """
-    Абстрактная модель которая содержит два столбца: время создания и последнего изменения
+    Абстрактная модель, которая содержит два столбца: время создания и последнего изменения
     """
     __abstract__ = True
 
     created_at = Column(
-        DateTime(timezone=True),
+        DateTime(),
+        default=datetime.utcnow,
         server_default=func.now()
     )
+
     updated_at = Column(
-        DateTime(timezone=True),
-        default=func.now(),
-        onupdate=func.now(),
-        server_default=func.now(),
+        DateTime(),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
     )
 
 
@@ -86,7 +94,7 @@ def db_query(query):
             async with await get_session() as session:
                 result = await query(session=session, *args, **kwargs)
                 await session.commit()
-                await session.close_all()
+                await session.close()
                 return result
         except Exception as e:
             logger.info("Error in DB func - '%s', error message: %s", query.__name__, e)

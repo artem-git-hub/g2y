@@ -40,9 +40,6 @@ def request_web(request_message: str) -> dict:
 
         search_results = soup.find_all(class_ = "serp-item")
 
-        # print(response.text)
-
-
         results = []
 
 

@@ -50,8 +50,27 @@ async def set_question(message: Message):
     )
 
 
+async def no_subscription(message: Message, state: FSMContext):
+    """
+        Ответ на комманды: /set_question и /set_testing без подписки
+    """
+    await state.reset_state()
+    await message.answer(
+        "У вас нет подписки, введите комманду /subscription, "\
+        "для получения большей информации"
+    )
+
+
 def register_setting_states(dp: Dispatcher):
     """Регистрация хендлеров задачисостояний"""
-    dp.register_message_handler(set_testing, commands=["set_testing"], state="*")
+    dp.register_message_handler(set_testing,
+                                commands=["set_testing"],
+                                state="*",
+                                is_subscriber=True)
     dp.register_message_handler(set_recognition, commands=["set_recognition"], state="*")
-    dp.register_message_handler(set_question, commands=["set_question"], state="*")
+    dp.register_message_handler(set_question,
+                                commands=["set_question"],
+                                state="*",
+                                is_subscriber=True)
+
+    dp.register_message_handler(no_subscription, commands=["set_question", "set_testing"], state="*")

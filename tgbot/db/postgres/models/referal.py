@@ -16,17 +16,21 @@ class Referal(TimedBaseModel):
 
     __tablename__ = "referals"
 
-    id = Column(autoincrement=True, primary_key=True)
+    id = Column(BigInteger, autoincrement=True, primary_key=True)
 
-    referer_id = Column(BigInteger, ForeignKey('users.id'), unique=True)
+    referer_id = Column(BigInteger, ForeignKey('users.id'))
     referal_id = Column(BigInteger, ForeignKey('users.id'))
+
 
     @declared_attr
     def referal(self):
         """Связь с приглашенным пользователем"""
-        return relationship('User', foreign_keys=[User.id])
-    
+        return relationship(User,
+                            primaryjoin=User.id == self.referal_id)
+
+
     @declared_attr
     def referer(self):
         """Связь с пригласившим пользователем"""
-        return relationship('User', foreign_keys=[User.id])
+        return relationship(User,
+                            primaryjoin=User.id == self.referer_id)
