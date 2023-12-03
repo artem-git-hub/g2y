@@ -13,6 +13,6 @@ class Communication(StatesGroup):
     """
 
     testing = State()
-    searching = State()
+    recognition = State()
     question = State()
     

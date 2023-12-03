@@ -18,8 +18,8 @@ config = load_config(ENV_PATH)
 
 config.bot=Bot(token=config.tg_bot.token, parse_mode='HTML')
 
-config.links.main_article = 'https://telegra.ph/rpups-bot-11-26'
-config.links.get_maximum = 'https://telegra.ph/Kak-poluchit-maksimum-ot-tmerpups-bot-11-26'
+config.links.main_article = 'https://telegra.ph/g2y---GPTsearchingrecognize-12-03'
+config.links.get_maximum = 'https://telegra.ph/Kak-poluchit-maksimum-ot-g2y-bot-12-03'
 
 POSTGRES_URI_ASYNC = f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}:{config.db.port}/{config.db.database}"
 POSTGRES_URI = f"postgresql://{config.db.user}:{config.db.password}@{config.db.host}:{config.db.port}/{config.db.database}"

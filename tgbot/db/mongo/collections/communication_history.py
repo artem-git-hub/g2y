@@ -30,5 +30,5 @@ async def get_communication_history(user_id: int | str):
 
     if communication_history_document is None:
         return None
-    else:
-        return communication_history_document["messages"]
+    
+    return list(communication_history_document["messages"]) if communication_history_document["messages"] != '' else None

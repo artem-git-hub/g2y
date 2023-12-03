@@ -27,7 +27,7 @@ class SubscriptionFilter(BoundFilter):
 
         if self.is_subscriber is None:
             return False
-        elif select_subs(user_id=user_id) is None:
+        if select_subs(user_id=user_id) is None:
             return False
-        
+
         return await check_and_set_subscription(user_id)

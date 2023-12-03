@@ -17,6 +17,7 @@ from tgbot.handlers.admin.command import register_admin
 from tgbot.handlers.users.echo import register_echo
 from tgbot.handlers.users.command import register_user
 from tgbot.handlers.users.question_communication import register_question_communication
+from tgbot.handlers.users.recognition_communication import register_recognition_communication
 from tgbot.handlers.users.setting_states import register_setting_states
 from tgbot.handlers.users.testing_communication import register_testing_communication
 from tgbot.handlers.users.testing_keyboard import register_testing_keyboard
@@ -58,6 +59,8 @@ def register_all_handlers(dp):
     register_testing_communication(dp)
 
     register_question_communication(dp)
+
+    register_recognition_communication(dp)
 
     register_echo(dp)
 

@@ -36,15 +36,20 @@ async def request_gpt(
         logger.info("Starting AI response ...")
         logger.info("Message: %s", message)
 
-        # response = await g4f.ChatCompletion.create_async(
-        #     model=g4f.models.gpt_35_turbo,
-        #     messages=messages,
-        # )
         response = await g4f.ChatCompletion.create_async(
-            model=g4f.models.gpt_35_long,
+            model=g4f.models.gpt_35_turbo,
             messages=messages,
         )
+        # response = await g4f.ChatCompletion.create_async(
+        #     model=g4f.models.gpt_35_long,
+        #     messages=messages,
+        # )
 
+
+        # response = await g4f.ChatCompletion.create_async(
+        #     model=g4f.models.gpt_35_turbo_16k,
+        #     messages=messages,
+        # )
 
         # response = await g4f.ChatCompletion.create_async(
         #     model=g4f.models.gpt_4,

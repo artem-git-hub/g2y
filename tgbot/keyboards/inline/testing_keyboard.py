@@ -78,13 +78,7 @@ async def def_key_testing(
             #         text='🔼',
             #         callback_data=for_key_arrow_controls.new(direction="up")
             #     ), # type: ignore
-            # ],
-            [
-                InlineKeyboardButton(
-                    text='Выйти',
-                    callback_data=for_key_back.new(command="back")
-                ), # type: ignore
-            ]
+            # ]
         ]
     )
     return key_testing

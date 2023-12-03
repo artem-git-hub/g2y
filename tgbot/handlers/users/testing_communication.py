@@ -23,7 +23,7 @@ async def user_start_testing_mode(message: Message, state: FSMContext):
 
     message_text, addition_text = await text_from_message(message)
     await message.answer(
-        text="```txt\n" + message_text + 
+        text="```txt\n" + message_text + \
         f"\n```*Подпись к изображению (доп. инф. для запросов):* `{addition_text if addition_text != '' else '*ничего*'}`",
         parse_mode="markdown"
     )

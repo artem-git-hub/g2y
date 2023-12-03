@@ -12,7 +12,7 @@ from tgbot.states.communication import Communication
 
 
 async def set_testing(message: Message, state: FSMContext):
-    """Задача состояния тестирования.  Ответ на комманду /set_testing"""
+    """Задача состояния тестирования.  Ответ на комманду /t"""
     await Communication.testing.set()
 
     async with state.proxy() as data:
@@ -32,31 +32,30 @@ async def set_testing(message: Message, state: FSMContext):
 
 
 async def set_recognition(message: Message):
-    """Задача состояния тестирования.  Ответ на комманду /set_recognition"""
-    await Communication.searching.set()
+    """Задача состояния тестирования.  Ответ на комманду /r"""
+    await Communication.recognition.set()
     await message.answer(
         "Вы задали состояние распознования текста с изображения\n\n"
         "Отправляйте фотографии и бот выдаст вам распознаный текст"
-        "\n\n Пока не доработано ..."
     )
 
 
 async def set_question(message: Message):
-    """Задача состояния тестирования.  Ответ на комманду /set_question"""
+    """Задача состояния тестирования.  Ответ на комманду /q"""
     await Communication.question.set()
     await message.answer(
-        "Вы задали состояние web поиска\n\n"
+        "Вы задали состояние общения c GPT\n\n"
         "Присылайте запрос и вам ответит AI по данному вопросу"
     )
 
 
 async def no_subscription(message: Message, state: FSMContext):
     """
-        Ответ на комманды: /set_question и /set_testing без подписки
+        Ответ на комманды: /q и /t без подписки
     """
     await state.reset_state()
     await message.answer(
-        "У вас нет подписки, введите комманду /subscription, "\
+        "У вас нет подписки, введите комманду /sub, "\
         "для получения большей информации"
     )
 
@@ -64,13 +63,15 @@ async def no_subscription(message: Message, state: FSMContext):
 def register_setting_states(dp: Dispatcher):
     """Регистрация хендлеров задачисостояний"""
     dp.register_message_handler(set_testing,
-                                commands=["set_testing"],
+                                commands=["t"],
                                 state="*",
                                 is_subscriber=True)
-    dp.register_message_handler(set_recognition, commands=["set_recognition"], state="*")
+    dp.register_message_handler(set_recognition, commands=["r"], state="*")
     dp.register_message_handler(set_question,
-                                commands=["set_question"],
+                                commands=["q"],
                                 state="*",
                                 is_subscriber=True)
 
-    dp.register_message_handler(no_subscription, commands=["set_question", "set_testing"], state="*")
+    dp.register_message_handler(no_subscription,
+                                commands=["q", "t"],
+                                state="*")

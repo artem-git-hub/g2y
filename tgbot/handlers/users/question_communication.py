@@ -2,19 +2,19 @@
     Обработка общения в режиме тестирования
 """
 import logging
-from pprint import pprint
 
-from aiogram import Dispatcher
 import aiogram
+from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
 
 from tgbot.db.mongo.collections.communication_history import get_communication_history, upsert_communication_history
 from tgbot.services.ai_response import ai_response
-
 from tgbot.states.communication import Communication
 
+
 logger = logging.getLogger(__name__)
+
 
 async def user_start_question_mode(message: Message, state: FSMContext):
     """Получение изображения в режиме тестирования"""
@@ -24,15 +24,12 @@ async def user_start_question_mode(message: Message, state: FSMContext):
 
     communication_history = await get_communication_history(user_id=user_id)
 
-    # print(communication_history)
-
     message = await message.answer("Ожидание ответа от GPT ...")
     response = await ai_response(
         text,
         prompt=communication_history
     )
 
-    # print(response.get("prompt"))
     await upsert_communication_history(user_id=user_id,
                                        communication_history_data=response.get("prompt"))
 

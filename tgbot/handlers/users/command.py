@@ -5,6 +5,7 @@ from datetime import timedelta
 import re
 
 from aiogram import Dispatcher
+from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
 
 from tgbot.db.postgres.iterations.referal import add_referal,\
@@ -19,33 +20,39 @@ from tgbot.misc.other.get_word_day import get_word_day
 from tgbot.settings import config
 
 
-async def start(message: Message, first_start: bool = None):
+async def start(message: Message, state: FSMContext, first_start: bool = None):
     """Ответ на комманду /start"""
 
+    await state.reset_state()
     referer_id = message.get_args()
 
-    referal = await select_referals_by_referer_id_and_referal_id(referer_id=referer_id, referal_id=message.from_user.id)
+    if referer_id != message.from_user.id and referer_id != '':
+        referal = await select_referals_by_referer_id_and_referal_id(referer_id=referer_id,
+                                                                     referal_id=message.from_user.id)
 
-    if referer_id != '' and referer_id != message.from_user.id and referal is None:
-        await add_referal(referal_id=message.from_user.id,
-                          referer_id=referer_id)
+        if referal is None:
+            await add_referal(referal_id=message.from_user.id,
+                              referer_id=referer_id)
 
-        await add_subscription_time(user_id=referer_id, add_timedelta=timedelta(days=5))
-        await add_subscription_time(user_id=message.from_user.id, add_timedelta=timedelta(days=5))
+            await add_subscription_time(user_id=referer_id,
+                                        add_timedelta=timedelta(days=5))
+            await add_subscription_time(user_id=message.from_user.id,
+                                        add_timedelta=timedelta(days=5))
 
-        await config.bot.send_message(
-            chat_id=referer_id,
-            text="У вас новый реферал! + 5 дней подписки и 1 день ежемесячно\n\n\n"\
-                 "/subscription - больше данных"
-            )
+            await config.bot.send_message(
+                chat_id=referer_id,
+                text="У вас новый реферал! + 5 дней подписки и 1 день ежемесячно\n\n\n"\
+                    "/subscription - больше данных"
+                )
 
+            await message.answer("5 день подписки в подарок "\
+                                 "за то что перешел по реферальной ссылке",
+                                parse_mode="markdown")
 
-        await message.answer("5 день подписки в подарок за то что перешел по реферальной ссылке",
-                            parse_mode="markdown")
-        
 
     await message.answer("Привет пользователь!\n\n"\
-                         f"Как мной пользоваться: [КЛИК]({config.links.main_article})",
+                         f"[Статья о том как мной пользоваться]({config.links.main_article})\n\n"\
+                         "Или нажми /help",
                          parse_mode="markdown")
 
     if first_start:
@@ -60,8 +67,29 @@ async def start(message: Message, first_start: bool = None):
                             parse_mode="markdown")
 
 
-async def subscription(message: Message):
+async def command_help(message: Message, state: FSMContext):
+    """Ответ на комманду /help"""
+    await state.reset_state()
+    await message.answer("<b>Вот мои основные команды:</b>\n\n\n"\
+                         "/q - задай любой вопрос GPT и получи ответ\n\n"\
+                         "/t - присылай скриншоты вопросов,"\
+                         " а GPT попробует их решить\n\n"\
+                         "/r - присылай картинку и "\
+                         "получай распознаный текст с этой картинки\n\n"\
+                         "/sub - информация о получении "\
+                         "БЕЗЛИМИТНОЙ ПОДПИСКИ и общей информации\n\n"\
+                         "/help - вывод этого текста помощи пользователям\n\n\n"\
+                         "<b>Чтобы выйти из любого режима - нужно ввести любую команду</b>\n\n"\
+                         "<b>Дополнительные статьи:</b>\n\n"\
+                         f"1) <a href='{config.links.main_article}'>Главная статья</a>\n\n"
+                         f"2) <a href='{config.links.get_maximum}'>Как получить максимум от бота</a>\n\n",
+                         parse_mode="html")
+
+
+async def subscription(message: Message, state: FSMContext):
     """Ответ на комманду /subscription"""
+
+    await state.reset_state()
     referal_link = await get_referal_link(user_id=message.from_user.id)
 
     subscription: bool = await check_and_set_subscription(user_id=message.from_user.id)
@@ -99,4 +127,6 @@ def register_user(dp: Dispatcher):
     dp.register_message_handler(start, commands=["start"], state="*", regexp=re.compile(r'^\d{8,11}$'))
     dp.register_message_handler(start, commands=["start"], state="*")
 
-    dp.register_message_handler(subscription, commands=["subscription"], state="*")
+    dp.register_message_handler(command_help, commands=["help"], state="*")
+
+    dp.register_message_handler(subscription, commands=["sub"], state="*")

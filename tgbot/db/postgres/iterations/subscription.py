@@ -38,7 +38,7 @@ async def select_all_subs(session: AsyncSession = None) -> List[Subscription]:
         Выборка всех созданных подписок
     """
     subs = await session.execute(select(Subscription))
-    return subs.fetchall()
+    return [i[0] for i in subs.fetchall()]
 
 
 @db_query
