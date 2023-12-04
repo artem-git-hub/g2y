@@ -25,18 +25,28 @@ async def user_start_question_mode(message: Message, state: FSMContext):
     communication_history = await get_communication_history(user_id=user_id)
 
     message = await message.answer("Ожидание ответа от GPT ...")
+
+    logger.info("Starting GPT ...")
     response = await ai_response(
         text,
         prompt=communication_history
     )
+    try:
+        await message.edit_text(
+            response['message'],
+            parse_mode="markdown"
+        )
+    except Exception as e:
+        await message.edit_text(
+            "Произошла ошибка с GPT",
+            parse_mode="markdown"
+        )
+        logger.info("Error in sending message: %s", e)
+        logger.info("Response message:\n-------------\n\n%s\n\n---------------\n", response['message'])
 
     await upsert_communication_history(user_id=user_id,
                                        communication_history_data=response.get("prompt"))
-
-    await message.edit_text(
-        response['message'],
-        parse_mode="markdown"
-    )
+    
 
 
 async def unknown_type(message: Message):
