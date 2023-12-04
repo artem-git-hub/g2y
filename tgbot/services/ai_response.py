@@ -33,11 +33,13 @@ async def request_gpt(
         #     messages=messages,
         # )
 
-        logger.info("Starting AI response ...")
-        logger.info("Message: %s", message)
+        # logger.info("Starting AI response ...")
+        # logger.info("Message: %s", message)
 
         response = await g4f.ChatCompletion.create_async(
-            model=g4f.models.gpt_35_turbo,
+            # model=g4f.models.gpt_35_turbo,
+            # model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-16k",
             messages=messages,
         )
         # response = await g4f.ChatCompletion.create_async(
@@ -57,11 +59,12 @@ async def request_gpt(
         # )
         messages.append({"role": "assistant", "content": response})
 
-        logger.info("Get AI response ...")
-        logger.info("Response: %s", response)
+        # logger.info("Get AI response ...")
+        # logger.info("Response: %s", response)
 
         return {"success": True, "message": str(response), "prompt": messages}
     except RuntimeError:
+        logger.info("AI error RuntimeError")
         return {
             "success": False,
             "message": "Запрос к AI не удался, попробуйте заново!", "prompt": None

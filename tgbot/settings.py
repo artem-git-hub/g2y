@@ -1,8 +1,6 @@
 """
     Модуль с описанием путей или не конфиденциальных данных
 """
-
-from dataclasses import dataclass
 from aiogram import Bot
 from tgbot.config import load_config
 

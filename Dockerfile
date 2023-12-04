@@ -1,8 +1,17 @@
 FROM python:3.10
-ENV BOT_NAME=$BOT_NAME
 
-WORKDIR /usr/src/app/"${BOT_NAME:-tg_bot}"
+WORKDIR /app
 
-COPY requirements.txt /usr/src/app/"${BOT_NAME:-tg_bot}"
-RUN pip install -r /usr/src/app/"${BOT_NAME:-tg_bot}"/requirements.txt
-COPY . /usr/src/app/"${BOT_NAME:-tg_bot}"
+COPY requirements.txt /app/
+
+RUN pip install -r requirements.txt
+
+COPY . /app/
+
+RUN apt-get update && apt-get install -y locales locales-all
+ENV LC_ALL=ru_RU.UTF-8
+ENV LANG=ru_RU.UTF-8
+ENV LANGUAGE=ru_RU.UTF-8
+
+RUN apt-get update && \
+    apt-get install -y tesseract-ocr tesseract-ocr-rus
