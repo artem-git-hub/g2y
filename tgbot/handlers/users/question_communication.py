@@ -19,25 +19,29 @@ logger = logging.getLogger(__name__)
 async def user_start_question_mode(message: Message, state: FSMContext):
     """Получение изображения в режиме тестирования"""
 
-    text = message.text
-    user_id = message.from_user.id
+    try:
+        text = message.text
+        user_id = message.from_user.id
 
-    communication_history = await get_communication_history(user_id=user_id)
+        communication_history = await get_communication_history(user_id=user_id)
 
-    message = await message.answer("Ожидание ответа от GPT ...")
-    response = await ai_response(
-        text,
-        prompt=communication_history
-    )
+        message = await message.answer("Ожидание ответа от GPT ...")
+        response = await ai_response(
+            text,
+            prompt=communication_history,
+            no_16k=True
+        )
 
-    await upsert_communication_history(user_id=user_id,
+        await upsert_communication_history(user_id=user_id,
                                        communication_history_data=response.get("prompt"))
 
-    await message.edit_text(
-        response['message'],
-        parse_mode="markdown"
-    )
+        await message.edit_text(
+            response['message'],
+            parse_mode="markdown"
+        )
 
+    except Exception as e:
+        logger.info("Error in question mode: %s", e)
 
 async def unknown_type(message: Message):
     """Функция ответа если прислан не подходящий тип (что угодно кроме текста)"""

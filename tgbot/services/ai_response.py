@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 async def request_gpt(
         message: str = "",
-        prompt: list = None
+        prompt: list = None,
+        no_16k: bool = False
 ) -> Dict[str, bool | str]:
     """
         Ассинхронный вызов разных представителей AI
@@ -36,12 +37,20 @@ async def request_gpt(
         # logger.info("Starting AI response ...")
         # logger.info("Message: %s", message)
 
-        response = await g4f.ChatCompletion.create_async(
-            # model=g4f.models.gpt_35_turbo,
-            # model="gpt-3.5-turbo",
-            model="gpt-3.5-turbo-16k",
-            messages=messages,
-        )
+        if not no_16k:
+            response = await g4f.ChatCompletion.create_async(
+                # model=g4f.models.gpt_35_turbo,
+                # model="gpt-3.5-turbo",
+                model="gpt-3.5-turbo-16k",
+                messages=messages,
+            )
+        else:
+            response = await g4f.ChatCompletion.create_async(
+                # model=g4f.models.gpt_35_turbo,
+                model="gpt-3.5-turbo",
+                #model="gpt-3.5-turbo-16k",
+                messages=messages,
+            )
         # response = await g4f.ChatCompletion.create_async(
         #     model=g4f.models.gpt_35_long,
         #     messages=messages,
